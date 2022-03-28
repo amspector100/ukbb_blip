@@ -316,44 +316,12 @@ def main(args):
 			out_df = pd.DataFrame(
 				all_outputs, columns=COLUMNS
 			)
+			out_df['chrome'] = chrome
+			out_df['ld_start'] = start
 			out_df.to_csv(output_file)
 			print(out_df)
 			print(f"Finished with hg2={hg2}, num_causal={num_causal} at {elapsed(time0)}!")
 			sys.stdout.flush()
-
-	# #### Step 2: run NPrior + BLiP
-	# if args.get("run_blip", [True])[0]:
-	# 	all_output = []
-	# 	for how_reg in how_regs:
-	# 		output = knockpy.utilities.apply_pool(
-	# 			func=run_blip,
-	# 			num_processes=args.get("num_processes", [6])[0],
-	# 			constant_inputs=dict(
-	# 				q=args.get("q", [0.05])[0],
-	# 				prefix=prefix,
-	# 				how_reg=how_reg,
-	# 				time0=time0,
-	# 				args=args,
-	# 				output_dir=output_dir
-	# 			),
-	# 			i=list(range(rep_start, rep_start+reps))
-	# 		)
-	# 		for x in output:
-	# 			all_output.extend(x)
-	# 		out_df = pd.DataFrame(
-	# 			all_output,
-	# 			columns=[
-	# 				"seed",
-	# 				"gap",
-	# 				"fdp",
-	# 				"num_nnulls",
-	# 				"n_false_disc",
-	# 				"inc_type",
-	# 				"how_reg"
-	# 			]
-	# 		)
-	# 		print(out_df)
-	# 		out_df.to_csv(output_path)
 
 if __name__ == "__main__":
 	main(sys.argv)
