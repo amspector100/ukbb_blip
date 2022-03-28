@@ -79,17 +79,18 @@ def create_XTY(n, noisei, ld, hg2, num_causal):
 	p = ld.shape[0]
 	# Create sparse coefficients
 	beta = np.zeros(p)
-	causal_inds = np.random.choice(
-		np.arange(p),
-		num_causal,
-		replace=False,
-	)
-	beta[causal_inds] = np.random.randn(num_causal)
+	if num_causal != 0 and hg2 != 0:
+		causal_inds = np.random.choice(
+			np.arange(p),
+			num_causal,
+			replace=False,
+		)
+		beta[causal_inds] = np.random.randn(num_causal)
 
-	# Adjust beta so that hg2 = 2
-	scale = np.dot(beta, np.dot(ld, beta))
-	beta = np.sqrt(hg2) * beta / np.sqrt(scale)
-	
+		# Adjust beta so that hg2 = 2
+		scale = np.dot(beta, np.dot(ld, beta))
+		beta = np.sqrt(hg2) * beta / np.sqrt(scale)
+		
 	# Create XTY where var(Y) = 1
 	XTY = np.dot(ld, beta) + np.sqrt((1 - hg2)/n) * noisei
 	XTY = n * XTY
