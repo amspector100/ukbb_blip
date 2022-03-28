@@ -7,8 +7,11 @@ sims/*
 # Debugging
 sim_debug.ipynb
 *.sh
-output/sims/*
-output/plots/*
+# Raw simulation data
+output/polyfun_wrapper/sims/*
+# non-final plots
+output/polyfun_wrapper/plots/*
+output/final/plots/*
 
 # _____ R Defaults _______
 # History files
