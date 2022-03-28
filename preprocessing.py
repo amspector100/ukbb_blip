@@ -203,7 +203,6 @@ def modified_HESS(
     for _ in range(hess_iter):
         mis_inds = sorted(list(mis.maximal_independent_set(G)))
         m = len(mis_inds)
-        print(f"Length mis_inds in mod hess is {m}, len(inds)={len(inds)}.")
         if m > max_hess_size:
             mis_inds = np.random.choice(m, max_hess_size, replace=False)
         sumstats_sub = sumstats[inds][mis_inds]
