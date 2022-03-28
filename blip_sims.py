@@ -18,6 +18,7 @@ parent_directory = os.path.split(file_directory)[0]
 sys.path.insert(0, parent_directory + "/pyblip/")
 import pyblip
 print(f"pyblip version is {pyblip.__version__}")
+sys.stdout.flush()
 
 # Local modules
 import utilities
@@ -166,6 +167,7 @@ def run_susie_blip(
 
 	# Step 2: estimate hg2 using modified HESS
 	print(f"Estimating hg2 via HESS for {print_id} at {elapsed(time0)}.")
+	sys.stdout.flush()
 	hg2_est = preprocessing.modified_HESS(
 		ld=ld,
 		sumstats=XTY / n,
@@ -177,6 +179,7 @@ def run_susie_blip(
 	# Step 3: fit SuSiE
 	print(f"Starting SuSiE with hg2_est={hg2_est} for {print_id} at {elapsed(time0)}.")
 	hg2_est = max(hg2_est, 1e-6)
+	sys.stdout.flush()
 	# Note alphas is L x p
 	q=args.get("q", [0.05])[0]
 	alphas, susie_sets = run_susie_suff_stats(
@@ -189,6 +192,7 @@ def run_susie_blip(
 		verbose=args.get("verbose", [False])[0],
 	)
 	print(f"Finished fitting SuSiE for {print_id} at {elapsed(time0)}.")
+	sys.stdout.flush()
 
 	# Step 4: run BLiP after prefiltering SNPs 
 	# to exclude SNPs with marginal PIP < 0.01
@@ -231,7 +235,6 @@ def run_susie_blip(
 		[susie_power, susie_fdr, 'SuSiE'] + dgp_args,
 		[blip_power, blip_fdr, 'SuSiE + BLiP'] + dgp_args
 	]
-	print(output)
 	return output
 
 def main(args):
@@ -251,6 +254,7 @@ def main(args):
 	if not os.path.exists(output_dir):
 		os.makedirs(output_dir)
 	print(f"Output path is {output_path}")
+	sys.stdout.flush()
 
 	# globals / args
 	args = parser.parse_args(args)
@@ -274,6 +278,7 @@ def main(args):
 	ld = load_processed_ld(chrome=chrome, start=start, time0=time0)
 	L = np.linalg.cholesky(ld) # takes ~10 seconds
 	print(f'Finished loading LD and performing cholesky decomp at {elapsed(time0)}')
+	sys.stdout.flush()
 
 	# Loop through simulation settings
 	all_outputs = []
@@ -313,10 +318,7 @@ def main(args):
 			out_df.to_csv(output_file)
 			print(out_df)
 			print(f"Finished with hg2={hg2}, num_causal={num_causal} at {elapsed(time0)}!")
-
-
-
-
+			sys.stdout.flush()
 
 	# #### Step 2: run NPrior + BLiP
 	# if args.get("run_blip", [True])[0]:
