@@ -6,6 +6,9 @@ sims/*
 
 # Debugging
 sim_debug.ipynb
+*.sh
+output/sims/*
+output/plots/*
 
 # _____ R Defaults _______
 # History files
