@@ -9,6 +9,7 @@ sim_debug.ipynb
 *.sh
 # Raw simulation data
 output/polyfun_wrapper/sims/*
+output/sims/*
 # non-final plots
 output/polyfun_wrapper/plots/*
 output/final/plots/*

@@ -1,0 +1,13 @@
+,method,outcome,gap
+0,susie,CARDIOVASCULAR,27.014297336463514
+1,susie,HDLcholesterol,128.13061956619234
+2,susie,HEIGHTz,552.5692389649203
+3,susie,LDLdirect,60.51087045909033
+4,susie + BLiP,CARDIOVASCULAR,34.38329816318948
+5,susie + BLiP,HDLcholesterol,166.91878758496395
+6,susie + BLiP,HEIGHTz,695.6392332671811
+7,susie + BLiP,LDLdirect,74.70915334665332
+8,susie-indiv-only,CARDIOVASCULAR,18.0
+9,susie-indiv-only,HDLcholesterol,134.0
+10,susie-indiv-only,HEIGHTz,465.0
+11,susie-indiv-only,LDLdirect,50.0
