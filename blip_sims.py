@@ -247,6 +247,7 @@ def main(args):
 	output_path = f'sims/results/{today}/{hour}/results.csv'
 	args_path = f'sims/results/{today}/{hour}/args.json'
 	output_dir = os.path.dirname(output_path)
+	output_file = output_dir + "/results.csv"
 	if not os.path.exists(output_dir):
 		os.makedirs(output_dir)
 	print(f"Output path is {output_path}")
@@ -309,7 +310,9 @@ def main(args):
 			out_df = pd.DataFrame(
 				all_outputs, columns=COLUMNS
 			)
+			out_df.to_csv(output_file)
 			print(out_df)
+			print(f"Finished with hg2={hg2}, num_causal={num_causal} at {elapsed(time0)}!")
 
 
 
