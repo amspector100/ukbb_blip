@@ -77,6 +77,9 @@ def pull_main_data(download_snps=True, download_susie=True, download_bolt=False)
 	# else:
 	# 	wget.download(REP_URL)
 
+	# Reset
+	os.chdir(file_directory)
+
 
 if __name__ == '__main__':
 	pull_main_data(download_bolt=False)
