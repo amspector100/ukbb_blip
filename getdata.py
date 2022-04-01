@@ -35,6 +35,7 @@ def pull_main_data():
 		if os.path.exists(fname):
 			print(f"Summary statistics for trait={trait} are already downloaded.")
 		else:
+			print(f"Downloading summary statistics for trait={trait}.")
 			wget.download(base_url + fname)
 
 	# Step 2: download SuSiE outputs
@@ -47,19 +48,17 @@ def pull_main_data():
 		if os.path.exists(fname):
 			print(f"SuSiE model for trait={trait} is already downloaded.")
 		else:
-			print("Womp womp")
-			#wget.download(base_url + fname)
+			print(f"Downloading SuSiE model for trait={trait}.")
+			wget.download(base_url + fname)
 
-	# Step 3: download data for replication analysis
-	farh_dir = f"{file_directory}/data/farh2015/"
-	create_dir(farh_dir)
-	os.chdir(farh_dir)
-	if os.path.exists(REP_FNAME):
-		print("Results from Farh (2015) are already downloaded.")
-	else:
-		wget.download(REP_URL)
-
-
+	# # Step 3: download data for replication analysis
+	# farh_dir = f"{file_directory}/data/farh2015/"
+	# create_dir(farh_dir)
+	# os.chdir(farh_dir)
+	# if os.path.exists(REP_FNAME):
+	# 	print("Results from Farh (2015) are already downloaded.")
+	# else:
+	# 	wget.download(REP_URL)
 
 
 if __name__ == '__main__':

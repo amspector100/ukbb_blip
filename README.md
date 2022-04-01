@@ -8,18 +8,12 @@ To run this analysis, you will need to install [pyblip](https://github.com/amspe
 
 To rerun the analysis, do as follows:
 
-1. Download the requesite data by running 
-	``python3.9 getdata.py``
-	This may take a while as some files are quite large.
-2. Run BLiP on top of SuSiE by running
-	``python3.9 blip_wrapper.py``
-	This should take roughly ten minutes. However, the vast majority of the time is spent loading the data into memory or finding the rejection sets from SuSiE. Running BLiP on top of SuSiE should take less than one minute per trait.
-3. To process the outputs, run
-	``python3.9 postprocessing.py``
-	which may also take some time due to the need to merge large files.
+1. Download the requesite data by running ``python3.9 getdata.py``. This may take a while as some files are quite large.
+2. Run BLiP on top of SuSiE by running ``python3.9 blip_wrapper.py``. This should take roughly ten minutes. However, the vast majority of the time is spent loading the data into memory or finding the rejection sets from SuSiE. Running BLiP on top of SuSiE should take less than one minute per trait.
+3. To process the outputs, run ``python3.9 postprocessing.py``. This will be slow due to the need to merge large files.
 4. The plots can then be generated using the ``ukbb_blip_final_plots.ipynb`` notebook.
 
-Final plots will be located in output/final/plots/ and the final set of rejections will be located in output/final/rejections.
+Final plots will be located in ``output/final/plots/`` and the final set of rejections will be located in ``output/final/rejections``.
 
 The data in final/rejections has already been pushed to GitHub, so it should be possible to run ``ukbb_blip_final_plots.ipynb`` without running any of the prior analysis.
 
