@@ -3,6 +3,7 @@ import os
 import warnings
 import wget
 import requests
+import gdown
 
 TRAITS = [
 	'body_HEIGHTz', 
@@ -36,7 +37,7 @@ def pull_main_data(download_snps=True, download_susie=True, download_bolt=False)
 			print("The list of SNPs is already downloaded.")
 		else:
 			print("Downloading list of SNPs.")
-			wget.download(url)
+			gdown.download(url, fname, quiet=False)
 
 	# Option 2: download bolt_337K data
 	bolt_dir = f"{file_directory}/data/polyfun_results/"
