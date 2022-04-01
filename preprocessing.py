@@ -23,11 +23,6 @@ def elapsed(time0):
     return np.around(time.time() - time0, 2)
 
 def min_eigval(cov):
-    """
-    eigsh is faster for super high dimensions,
-    but less accurate and reliable
-    and slower in low dimensions?
-    """
     #     try:
     #         return eigsh(cov, 1, which='SA')[0][0]
     #     except:
@@ -78,6 +73,10 @@ def force_PSD_mis(
     max_cset=1,
     tol=1e-5
 ):
+    """
+    Uses the method outlined in Weissbrod (2019)
+    https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7710571/
+    """
     time0 = time.time() if time0 is None else time0
     # For reproducability (max ind set is random alg)
     np.random.seed(12345)

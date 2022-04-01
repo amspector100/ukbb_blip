@@ -6,7 +6,7 @@ sims/*
 
 # Debugging
 sim_debug.ipynb
-*.sh
+transfer.sh
 # Raw simulation data
 output/polyfun_wrapper/sims/*
 output/sims/*

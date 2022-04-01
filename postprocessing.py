@@ -27,20 +27,6 @@ ALL_TRAITS = [
 	'biochemistry_HDLcholesterol',
 	'biochemistry_LDLdirect'
 ]
-COLORS = [
-	# 'cornflowerblue',
-	# 'mediumaquamarine', #'aquamarine is pretty but hard to see, similarly for springgren
-	# 'orangered',
-	# 'pink',
-	# 'gray',
-	# 'gold'
-	'#019E73', # blue-ish green
-	'cornflowerblue', # blue
-	"orangered", #'#D55E01', # red/vermillon
-	'#F0E442', # yellow
-	'#BBBBBB', # gray
-	'#000000', # black
-]
 METHOD_NAMES = {
 	"susie_blip":"blip + susie",
 	"susie":"susie",
@@ -141,145 +127,11 @@ def create_final_json(trait, time0):
 	with open(f"output/final/rejections/rejections_{trait}.json", "w") as savefile:
 		savefile.write(json.dumps(final_dict))
 
-def main_plots(traits, time0, args):
-
-	# Read final data
-	loci_df_list = []
-	for trait in traits:
-		with open(f"output/final/rejections/rejections_{trait}.json", "r") as file:
-			rejections = json.load(file)
-
-		# Load metadata about positions in chromosomes
-		chromepos_file = f"main_cache/chromepos/{trait}_chromepos.csv"
-		chrome_starts = pd.read_csv(chromepos_file)
-		chrome_starts = chrome_starts.set_index("CHR")
-		chrome_starts.index = chrome_starts.index.astype(int)
-		chrome_starts['cum_bp'] = np.cumsum(chrome_starts['max_bp'])
-		chrome_starts['cum_bp'] = chrome_starts['cum_bp'] - chrome_starts['max_bp']
-
-		# Turn into dataframe
-		snp_list = []
-		loci_list = []
-		methods = list(rejections.keys())
-		for method in methods:
-			for x in rejections[method]:
-				pep = x['pep']
-				gsize = len(x['SNP_IDS'])
-				chrome = x['CHR'][0]
-				bp = x['BP'][0] + chrome_starts.loc[chrome, 'cum_bp']
-				loci = int(bp / int(1e6) - 0.5)
-				loci_list.append(
-					[method, chrome, loci, 1, 1 / gsize, gsize, pep]
-				)
-				for j in range(len(x['BP'])):
-					snp_list.append(
-						[method, x['BP'][j], 1 / gsize, gsize, pep]
-					)
-
-		## Aggregated plots by loci for each trait
-		loci_df = pd.DataFrame(
-			loci_list, columns=['method', 'CHR', 'loci', 'ndisc', 'gap', 'gsize', 'pep']
-		)
-		loci_df['Method'] = loci_df['method'].map(METHOD_NAMES)
-		base_title = f"Discoveries for {trait.split('_')[1]}"
-		for loci_subset, point_size, point_stroke, col_size, title, save_postfix in zip(
-			[loci_df, loci_df.loc[loci_df['CHR'] == 1]],
-			[0.05, 0.8],
-			[0.05, 0.25],
-			[5, 0.5],
-			[base_title, base_title+" for Chromosome 1"],
-			['', '_chrome1']
-
-		):
-			chrome1 = save_postfix != ''
-			g = (
-				ggplot(
-					loci_subset.loc[
-						(loci_subset['method'] != 'susie-indiv-only') &
-						(~loci_subset['method'].str.contains('lfdr'))
-					], 
-					aes(
-						x='loci',
-						y='gap',
-						fill='Method'
-					)
-				) +
-				facet_wrap("Method", nrow=4) +
-				geom_col(position='stack', size=col_size) + #, color='black', size=0.2) +
-				labs(
-					x="Region Start (mBP)",
-					y="Group-Adjusted Num. Disc. per Locus",
-					title=title,
-				) +
-				#geom_text(aes(x='ld'), label="'", y=-0.1,  size=8, color='black') +
-				#scale_color_manual(values=COLORS) +
-				scale_fill_manual(values=COLORS) 
-			)
-			if chrome1:
-				g += geom_point(position='stack', color='black', size=point_size, stroke=point_stroke)
-			g.save(f"output/final/plots/{trait}_ld_plot{save_postfix}.png", dpi=500)
-
-		# Append
-		loci_df['trait'] = trait.split("_")[1]
-		loci_df_list.append(loci_df)
-
-		# ## Plot for each discovered group / snp
-		# snp_df = pd.DataFrame(
-		# 	snp_list, columns=['method', 'bp', 'gap', 'group_size', 'pep']
-		# )
-	
-	# Concatenate and plot group sizes
-	MAX_SIZE = 25
-	breaks = [0, 1, 2, 3, 5, 8, 11, 15, 20, MAX_SIZE]
-	all_loci_df = pd.concat(loci_df_list, axis='index')
-	all_loci_df['bin'] = pd.cut(all_loci_df['gsize'], bins=breaks, right=True)
-	if not args.get("include_lfdr", [0])[0]:
-		all_loci_df = all_loci_df.loc[~all_loci_df['Method'].str.contains("lfdr")]
-
-	gsize_df = pd.DataFrame(all_loci_df.groupby(['bin', 'Method', 'trait'])['bin'].count())
-	gsize_df = gsize_df.rename({'bin':'count'}, axis='columns').reset_index()
-
-	title = f"Discovered Group Sizes"
-	g = (
-		ggplot(gsize_df, aes(x='bin', y='count', fill='Method'))
-			+ geom_col(position='dodge')
-			+ labs(
-				x="Group Size", y="Number of Rejections", 
-				title=title
-			)
-		+ facet_wrap("~trait", scales="free_y")
-		+ scale_fill_manual(values=COLORS)
-		+ theme_bw()
-	    + theme(axis_text_x=element_text(angle = 35), figure_size=(6,3))
-		+ theme(axis_text_x=element_text(angle = 35))
-	)
-	g.save(f"output/final/plots/groupsizes.jpg", dpi=500)
-
-	# Plot overall group-adjusted power
-	gap_df = all_loci_df.groupby(['Method', 'trait'])['gap'].sum().reset_index()
-	g = (
-	    ggplot(gap_df, aes(x="Method", y="gap", fill="Method")) 
-	    + geom_col(position='dodge') 
-	    + facet_wrap("~trait", scales='free_y')
-	    + scale_fill_manual(values=COLORS)
-	    + theme_bw()
-	    + theme(subplots_adjust={'wspace':0.15})
-	    + theme(axis_text_x=element_text(angle = 35), figure_size=(6,3))
-	    + labs(title=f"Resolution Adjusted Power on UK Biobank, N=337K", y="Res. Adj. Num. Disc.")
-	)
-	g.save(f"output/final/plots/gap.jpg", dpi=500)
-
-
-
-
-
 def main(args):
 
 	### Main arguments:
 	# 1. create_final_json: whether or not to add metadata to raw outputs
 	# 2. traits (list of traits)
-	# 3. include_lfdr: include results from local fdr control
-
 	time0 = time.time()
 	args = parser.parse_args(args)
 	traits = args.get("traits", ALL_TRAITS)

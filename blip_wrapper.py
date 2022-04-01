@@ -5,8 +5,6 @@ import pandas as pd
 import scipy.sparse
 import time
 from tqdm import tqdm
-
-sys.path.insert(0, "/home/asher/Documents/Research/Knockoff/adaptive2/pyblip")
 import pyblip
 from pyblip.create_groups import CandidateGroup
 
@@ -17,7 +15,6 @@ from preprocessing import elapsed
 # Plotting
 import matplotlib.pyplot as plt
 import seaborn as sns
-from plotnine import *
 
 # Saving output
 import json
@@ -376,37 +373,6 @@ def main():
 			}
 			with open(f"output/polyfun_wrapper/rejections/{outcome}.json", 'w') as thefile:
 				thefile.write(json.dumps(output_dict))
-
-		# # Power
-		# all_df['gap'] = 1 / all_df['size']
-		# gaps = all_df.groupby(['method'])['gap'].sum()
-		# print(f"Group-adjusted power={gaps}")
-
-		# # Group size plot, data wrangling
-		# breaks = [0, 1, 2, 3, 5, 8, 11, 15, 20, MAX_SIZE]
-		# all_df['bin'] = pd.cut(all_df['size'], bins=breaks, right=True)
-		# out = pd.DataFrame(all_df.groupby(['bin', 'method'])['bin'].count())
-		# out = out.rename({'bin':'count'}, axis='columns').reset_index()
-
-		# # The plot
-		# title = f"Discovered Groups of SNPs for {outcome.split('_')[-1]}"
-		# g = (
-		# 	ggplot(out, aes(x='bin', y='count', fill='method'))
-		# 		+ geom_col(position='dodge')
-		# 		+ labs(
-		# 			x="Group Size", y="Number of Rejections", 
-		# 			title=title
-		# 		)
-		# 		+ scale_fill_manual(values=COLORS)
-		# )
-		# if not DEBUG:
-		# 	print(f"Saving plot of groupsizes...")
-		# 	g.save(
-		# 		filename=f"output/polyfun_wrapper/plots/{outcome}.png",
-		# 		width=8,
-		# 		height=4
-		# 	)
-
 
 
 

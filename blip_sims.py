@@ -4,7 +4,6 @@ import datetime
 import copy
 import numpy as np
 import pandas as pd
-import loading
 import warnings
 import scipy.linalg
 import parser
@@ -13,9 +12,6 @@ import networkx.algorithms.mis as mis
 
 import os
 import sys
-file_directory = os.path.dirname(os.path.abspath(__file__))
-parent_directory = os.path.split(file_directory)[0]
-sys.path.insert(0, parent_directory + "/pyblip/")
 import pyblip
 print(f"pyblip version is {pyblip.__version__}")
 sys.stdout.flush()
@@ -24,10 +20,15 @@ sys.stdout.flush()
 import utilities
 import preprocessing
 from preprocessing import elapsed, shift_until_PSD, min_eigval
+from getdata import create_dir
+file_directory = os.path.dirname(os.path.abspath(__file__))
 
 COLUMNS = ['power', 'fdr', 'method', 'hg2', 'num_causal', 'seed']
 
 def load_processed_ld(chrome, start, time0):
+	# Make sure relevant directories exist
+	create_dir(f"{file_directory}/sims/processed_ld/")
+	create_dir(f"{file_directory}/data/ld/")
 	# Check if processed ld is cached
 	end = int(start+3000000)
 	processed_fname = f'sims/processed_ld/chr{chrome}_{start}_{end}.npy'
