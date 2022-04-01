@@ -18,38 +18,54 @@ def create_dir(directory):
 	if not os.path.exists(directory):
 		os.makedirs(directory)
 
-def pull_main_data():
+def pull_main_data(download_snps=True, download_susie=True, download_bolt=False):
 	"""
 	Downloads data necessary for main analysis.
 	"""
 	file_directory = os.path.dirname(os.path.abspath(__file__))
 
-	# Step 1: download bolt_337K data
+	# Option 1: download names of ~19.6 million SNPs 
+	# included in the analysis
+	# (caching these values saves preprocessing)
+	create_dir("main_cache/")
+	if download_snps:
+		os.chdir(f"{file_directory}/main_cache/")
+		fname = 'snps.json'
+		url = "https://drive.google.com/file/d/1-qvarB5uzI67IIrToFqdD8f_zD9p4-5l/view?usp=sharing"
+		if os.path.exists(fname):
+			print("The list of SNPs is already downloaded.")
+		else:
+			print("Downloading list of SNPs.")
+			wget.download(url)
+
+	# Option 2: download bolt_337K data
 	bolt_dir = f"{file_directory}/data/polyfun_results/"
 	create_dir(bolt_dir)
 	os.chdir(bolt_dir)
 	# for each trait download summary statistics
 	base_url = f"https://storage.googleapis.com/broad-alkesgroup-public/polyfun_results/"
-	for trait in TRAITS:
-		fname = f"bolt_337K_unrelStringentBrit_MAF0.001_v3.{trait}.bgen.stats.gz"
-		if os.path.exists(fname):
-			print(f"Summary statistics for trait={trait} are already downloaded.")
-		else:
-			print(f"Downloading summary statistics for trait={trait}.")
-			wget.download(base_url + fname)
+	if download_bolt:
+		for trait in TRAITS:
+			fname = f"bolt_337K_unrelStringentBrit_MAF0.001_v3.{trait}.bgen.stats.gz"
+			if os.path.exists(fname):
+				print(f"Summary statistics for trait={trait} are already downloaded.")
+			else:
+				print(f"Downloading summary statistics for trait={trait}.")
+				wget.download(base_url + fname)
 
-	# Step 2: download SuSiE outputs
+	# Option 2: download SuSiE outputs
 	alpha_dir = bolt_dir + "alphas/"
 	create_dir(alpha_dir)
 	os.chdir(alpha_dir)
 	# for each trait download SuSiE output
-	for trait in TRAITS:
-		fname = f"{trait}.nonfunct.alphas.parquet"
-		if os.path.exists(fname):
-			print(f"SuSiE model for trait={trait} is already downloaded.")
-		else:
-			print(f"Downloading SuSiE model for trait={trait}.")
-			wget.download(base_url + fname)
+	if download_susie:
+		for trait in TRAITS:
+			fname = f"{trait}.nonfunct.alphas.parquet"
+			if os.path.exists(fname):
+				print(f"SuSiE model for trait={trait} is already downloaded.")
+			else:
+				print(f"Downloading SuSiE model for trait={trait}.")
+				wget.download(base_url + fname)
 
 	# # Step 3: download data for replication analysis
 	# farh_dir = f"{file_directory}/data/farh2015/"
@@ -62,4 +78,4 @@ def pull_main_data():
 
 
 if __name__ == '__main__':
-	pull_main_data()
+	pull_main_data(download_bolt=False)

@@ -18,6 +18,7 @@ import seaborn as sns
 
 # Saving output
 import json
+from getdata import create_dir
 
 NUM_COLS = [f'ALPHA{i}' for i in range(1, 11)]
 COLORS = ['cornflowerblue', 'orangered', 'forestgreen']
@@ -242,9 +243,14 @@ rel_thresh = 0.99
 def main():
 
 	time0 = time.time()
+	print("Loading list of SNPs...")
+	with open("main_cache/snps.json", 'r') as thefile:
+		all_snp_dict = json.load(thefile)
+	print(f"Finished loading SNPs at time={elapsed(time0)}.")	
 
 	# Loop through outcomes
 	for (outcome, by_chromosome) in OUTCOMES:
+		print("==================================================================")
 		print("==================================================================")
 		print("==================================================================")
 		print(f"Now analyzing outcome = {outcome}")
@@ -258,12 +264,7 @@ def main():
 			range_end = 2
 
 		for chrome in list(range(1, range_end)):
-			XTY_snps = set(pd.read_csv(
-				f"main_cache/XTY/chrome{chrome}_trait{outcome}.csv",
-				index_col=0,
-				usecols=[0]
-			).index.tolist())
-			all_snps = all_snps.union(XTY_snps)
+			all_snps = all_snps.union(set(all_snp_dict[outcome][str(chrome)]))
 			print(f"For outcome={outcome}, after chrome={chrome}, num_snps={len(all_snps)} at {elapsed(time0)}.")
 
 		# Load data
@@ -363,6 +364,7 @@ def main():
 
 			# Join with other chunk (chromosome) data
 			all_df = pd.concat([all_df, df], axis='index')
+			create_dir("output/polyfun_wrapper/groupsizes/")
 			all_df.to_csv(f"output/polyfun_wrapper/groupsizes/{outcome}.csv")
 
 			# Save output metadata
@@ -371,6 +373,7 @@ def main():
 				"susie":all_susie_meta,
 				"susie-indiv-only":all_susie_indv_meta,
 			}
+			create_dir("output/polyfun_wrapper/rejections/")
 			with open(f"output/polyfun_wrapper/rejections/{outcome}.json", 'w') as thefile:
 				thefile.write(json.dumps(output_dict))
 

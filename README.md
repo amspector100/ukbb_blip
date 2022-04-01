@@ -19,6 +19,6 @@ The data in final/rejections has already been pushed to GitHub, so it should be 
 
 # Rerunning the simulations
 
-Simulations can be run using the ``blip_sims.py`` script. The specific parameters of our simulations are contained in ``sims.sh``, which can be run using the command ``bash sims.sh``.
+Simulations can be run using the ``blip_sims.py`` script. The specific parameters of our simulations are contained in ``sims.sh``, which can be run using the command ``bash sims.sh``. Before doing this, however, you might want to adjust the parameters for (1) the number of replications to run and (2) the number of parallel cores to use. 
 
 

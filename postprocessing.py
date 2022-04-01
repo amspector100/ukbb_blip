@@ -14,11 +14,7 @@ import time
 
 import preprocessing
 from preprocessing import elapsed
-
-# Plotting
-import matplotlib.pyplot as plt
-from plotnine import *
-
+import getdata
 
 ERRORS = ['fdr']
 ALL_TRAITS = [
@@ -33,7 +29,7 @@ METHOD_NAMES = {
 	"susie-indiv-only":"susie (no groups)",
 }
 
-def create_final_json(trait, time0):
+def create_final_json(trait, time0, args):
 
 	## Load all rejections in json format
 	# Susie, susie + blip, susie indiv only
@@ -53,9 +49,12 @@ def create_final_json(trait, time0):
 
 	# Step 1b: Form dataframe of metadata
 	meta_df_fname = f"output/final/rejections/metadata_{trait}.csv"
-	if False:#os.path.exists(meta_df_fname):
+	if os.path.exists(meta_df_fname) and not args.get("regen_metadata", [False])[0]:
+		print("Not regenerating final metadata. This saves time but may cause errors.")
+		print("If there are errors, try adding the argument '--regen_metadata True'.")
 		final_meta = pd.read_csv(meta_df_fname, index_col=0)
 	else:
+		print("Regenerating metadata. This may require downloading large files and it may take a while.")
 		meta_df = pd.DataFrame(index=all_snps)
 		meta_df['snp'] = meta_df.index
 		split = meta_df['snp'].str.split(".", expand=True)
@@ -68,6 +67,7 @@ def create_final_json(trait, time0):
 		all_meta = []
 		
 		# helpers to load sumstats quickly
+		getdata.pull_main_data(download_bolt=True, download_susie=False)
 		sumstats_file = f"data/polyfun_results/bolt_337K_unrelStringentBrit_MAF0.001_v3.{trait}.bgen.stats.gz"
 		chromepos_file = f"main_cache/chromepos/{trait}_chromepos.csv"
 		chrome_starts = pd.read_csv(chromepos_file)
@@ -138,7 +138,7 @@ def main(args):
 	# Add all metadata, combine all outputs
 	if args.get("create_final_json", [True])[0]:
 		for trait in traits:
-			create_final_json(trait, time0)
+			create_final_json(trait, time0, args)
 
 	# Create final plots
 	#main_plots(traits, time0, args)
