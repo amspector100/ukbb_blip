@@ -174,7 +174,7 @@ def blip_results(
 		output[error] = [rej.data for rej in rejections_blip]
 
 	# Return
-	print(f"Res-adj power for blip: {sum([1/len(x['group']) for x in output['fdr']])}")
+	print(f"Res-adj power for BLiP: {sum([1/len(x['group']) for x in output['fdr']])}")
 	return output
 
 def susie_indiv_results(single_peps, q):
@@ -220,7 +220,7 @@ def susie_results(alphas, alphas_index, q, max_size, time0):
 						"snps":alphas_index[rej_inds.tolist()].tolist()
 					})
 		print(f"For susie, finished chrome={chrome}, time={elapsed(time0)}.")
-
+	print(f"Finished the analysis of the vanilla susie model at time={elapsed(time0)}.")
 
 	return susie_rejections
 

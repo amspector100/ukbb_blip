@@ -32,7 +32,7 @@ def pull_main_data(download_snps=True, download_susie=True, download_bolt=False)
 	if download_snps:
 		os.chdir(f"{file_directory}/main_cache/")
 		fname = 'snps.json'
-		url = "https://drive.google.com/file/d/1-qvarB5uzI67IIrToFqdD8f_zD9p4-5l/view?usp=sharing"
+		url = "https://drive.google.com/uc?id=1-qvarB5uzI67IIrToFqdD8f_zD9p4-5l"
 		if os.path.exists(fname):
 			print("The list of SNPs is already downloaded.")
 		else:
