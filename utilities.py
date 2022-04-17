@@ -91,3 +91,17 @@ def rejset_power(rej_sets, beta):
 			nfd += 1
 	fdp = nfd / max(1, len(rej_sets))
 	return power, fdp
+
+def create_finemap_prefix(today, hour, **kwargs):
+	# Output directory
+	file_dir = os.path.dirname(os.path.abspath(__file__))
+	parent_dir = os.path.split(file_dir)[0]
+	file_prefix = f'sims/finemap_data/{today}/{hour}/'
+	# Add keys
+	for key in kwargs:
+		file_prefix += f"{key}{kwargs[key]}"
+	file_prefix += "/"
+	# Ensure directory exists
+	if not os.path.exists(file_prefix):
+		os.makedirs(file_prefix)
+	return file_prefix + "finemap_seed"

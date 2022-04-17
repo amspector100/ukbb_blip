@@ -3,7 +3,7 @@
 # Don't save data
 data/*
 sims/*
-
+helper.py
 # Debugging
 sim_debug.ipynb
 transfer.sh

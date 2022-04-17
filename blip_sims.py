@@ -12,16 +12,23 @@ import networkx.algorithms.mis as mis
 
 import os
 import sys
-import pyblip
+file_directory = os.path.dirname(os.path.abspath(__file__))
+try:
+	import pyblip
+except ImportError:
+	parent_directory = os.path.split(file_directory)[0]
+	sys.path.insert(0, os.path.abspath(parent_directory + "/pyblip/"))
+	import pyblip
+
 print(f"pyblip version is {pyblip.__version__}")
 sys.stdout.flush()
 
 # Local modules
 import utilities
+import finemap
 import preprocessing
 from preprocessing import elapsed, shift_until_PSD, min_eigval
 from getdata import create_dir
-file_directory = os.path.dirname(os.path.abspath(__file__))
 
 COLUMNS = ['power', 'fdr', 'method', 'hg2', 'num_causal', 'seed']
 
@@ -144,8 +151,9 @@ def run_susie_suff_stats(
 
 	return alphas, susie_sets
 
-def run_susie_blip(
+def run_susie_finemap_blip(
 	seed,
+	file_prefix,
 	n,
 	noise,
 	hg2,
@@ -196,47 +204,99 @@ def run_susie_blip(
 	print(f"Finished fitting SuSiE for {print_id} at {elapsed(time0)}.")
 	sys.stdout.flush()
 
-	# Step 4: run BLiP after prefiltering SNPs 
-	# to exclude SNPs with marginal PIP < 0.01
+	# Step 4: Fit FINEMAP
+	max_pep = args.get("max_pep", [0.25])[0]
+	max_size = args.get("max_size", [25])[0]
+	prenarrow = args.get("prenarrow", [True])[0]
 	prefilter_threshold = args.get("prefilter_threshold", [0.01])[0]
+	print(f"Starting FINEMAP for {print_id} at {elapsed(time0)}.")
+	sys.stdout.flush()
+	finemap_sets, finemap_cand_groups = finemap.run_finemap(
+		file_prefix=file_prefix + str(seed),
+		XTY=XTY,
+		XTX=ld,
+		n=n,
+		q=q,
+		max_nsignal=args.get("max_nsignal", [10])[0],
+		n_iter=args.get("n_iter_finemap", [10000])[0],
+		n_config=args.get("n_config_finemap", [500000])[0],
+		sss_tol=args.get("sss_tol", [0.001])[0],
+		max_pep=max_pep,
+		max_size=max_size,
+		prenarrow=prenarrow,
+		corr_config=args.get("corr_config", [0.95])[0],
+		finemap_chains=args.get("finemap_chains", [1])[0],
+		prefilter_thresholds=[prefilter_threshold],
+		hierarchical_cluster=False,
+	)
+	print(f"Finished FINEMAP for {print_id} at {elapsed(time0)}.")
+	sys.stdout.flush()
+
+	# Step 5: run BLiP after prefiltering SNPs 
+	# to exclude SNPs with marginal PIP < 0.01
 	marg_pips = 1 - np.exp(np.sum(np.log(np.maximum(1-alphas, 1e-10)), axis=0))
 	rel_inds = sorted(np.where(marg_pips > prefilter_threshold)[0])
 	if len(rel_inds) == 0:
-		detections = []
+		susie_blip_sets = []
 	else:
 		# Create cand groups
-		max_pep = args.get("max_pep", [0.25])[0]
 		cand_groups = pyblip.create_groups.susie_groups(
 			alphas=alphas[:, rel_inds],
 			X=None,
 			max_pep=max_pep,
 			q=q,
-			max_size=args.get("max_size", [25])[0],
+			max_size=max_size,
 		)
 		# BLiP detections
-		detections = pyblip.blip.BLiP(
+		susie_blip_sets = pyblip.blip.BLiP(
 			cand_groups=cand_groups,
 			error='fdr',
 			q=q,
 			max_pep=max_pep,
 		)
 		# Map detections back to original indices
-		for x in detections:
+		for x in susie_blip_sets:
 			x.group = set([
 				int(rel_inds[j]) for j in x.group
 			])
+		susie_blip_sets = [
+			x.group for x in susie_blip_sets
+		]
 
-	# Step 5: Compute power and FDR and return
-	susie_power, susie_fdr = utilities.rejset_power(
-		rej_sets=susie_sets, beta=beta
+	# Step 6: FINEMAP + BLiP
+	finemap_blip_sets = pyblip.blip.BLiP(
+		cand_groups=finemap_cand_groups,
+		max_pep=max_pep,
+		error='fdr',
+		q=q,
 	)
-	blip_power, blip_fdr = utilities.rejset_power(
-		rej_sets=[x.group for x in detections], beta=beta
-	)
-	output = [
-		[susie_power, susie_fdr, 'SuSiE'] + dgp_args,
-		[blip_power, blip_fdr, 'SuSiE + BLiP'] + dgp_args
+	finemap_blip_sets = [
+		x.group for x in finemap_blip_sets
 	]
+
+	# Step 7: Compute power and FDR and return
+	output = []
+	for method, rej in zip(
+		['SuSiE', 'SuSiE + BLiP', 'FINEMAP', 'FINEMAP + BLiP'],
+		[	
+			susie_sets,
+			susie_blip_sets,
+			finemap_sets,
+			finemap_blip_sets
+		]
+	):
+		power, fdr = utilities.rejset_power(rej, beta=beta)
+		output.append([power, fdr, method] + dgp_args)
+	# susie_power, susie_fdr = utilities.rejset_power(
+	# 	rej_sets=susie_sets, beta=beta
+	# )
+	# susie_blip_power, susie_blip_fdr = utilities.rejset_power(
+	# 	rej_sets=[x.group for x in susie_blip_sets], beta=beta
+	# )
+	# output = [
+	# 	[susie_power, susie_fdr, 'SuSiE'] + dgp_args,
+	# 	[blip_power, blip_fdr, 'SuSiE + BLiP'] + dgp_args
+	# ]
 	return output
 
 def main(args):
@@ -295,9 +355,15 @@ def main(args):
 				time0=time0,
 			)
 			# Step 3: run SuSiE and SuSiE + BLiP
+			file_prefix = utilities.create_finemap_prefix(
+				today=today, 
+				hour=hour, 
+				hg2=hg2,
+				num_causal=num_causal
+			)
 			output = utilities.apply_pool(
 				seed=list(range(reps)),
-				func=run_susie_blip,
+				func=run_susie_finemap_blip,
 				constant_inputs=dict(
 					noise=noise,
 					n=n,
@@ -306,11 +372,13 @@ def main(args):
 					ld=ld,
 					args=args,
 					time0=time0,
+					file_prefix=file_prefix,
 				),
 				num_processes=args.get(
 					"num_processes", [1]
 				)[0],
 			)
+			os.rmdir(os.path.dirname(file_prefix))
 			for x in output:
 				all_outputs.extend(x)
 			# Construct output df and save
