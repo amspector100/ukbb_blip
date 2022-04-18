@@ -121,6 +121,7 @@ def run_finemap(
 			max_nsignal=max_nsignal,
 			maf=maf,
 		)
+		del XTX
 		cmd = [finemap_executable]
 		cmd.extend(["--sss"])
 		cmd.extend(["--in-files", file_prefix_chain])
@@ -171,6 +172,7 @@ def run_finemap(
 				credset = creddf.loc[flags, col].copy()
 				credset = credset.str.split("rs").apply(lambda x: int(x[-1]))
 				default_credsets.append(set(credset))
+		del creddf
 
 		# Extract configuration output
 		configfiles.append(f"{file_prefix_chain}.config")

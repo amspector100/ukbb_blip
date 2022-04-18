@@ -219,7 +219,7 @@ def run_susie_finemap_blip(
 		q=q,
 		max_nsignal=args.get("max_nsignal", [10])[0],
 		n_iter=args.get("n_iter_finemap", [10000])[0],
-		n_config=args.get("n_config_finemap", [500000])[0],
+		n_config=args.get("n_config_finemap", [50000])[0],
 		sss_tol=args.get("sss_tol", [0.001])[0],
 		max_pep=max_pep,
 		max_size=max_size,
@@ -229,11 +229,16 @@ def run_susie_finemap_blip(
 		prefilter_thresholds=[prefilter_threshold],
 		hierarchical_cluster=False,
 	)
+	del ld # save memory
+	finemap_sets = [
+		x for x in finemap_sets if len(x) <= max_size
+	]
 	print(f"Finished FINEMAP for {print_id} at {elapsed(time0)}.")
 	sys.stdout.flush()
 
 	# Step 5: run BLiP after prefiltering SNPs 
 	# to exclude SNPs with marginal PIP < 0.01
+	print(f"Starting BLiP for {print_id} at {elapsed(time0)}.")
 	marg_pips = 1 - np.exp(np.sum(np.log(np.maximum(1-alphas, 1e-10)), axis=0))
 	rel_inds = sorted(np.where(marg_pips > prefilter_threshold)[0])
 	if len(rel_inds) == 0:
@@ -272,7 +277,8 @@ def run_susie_finemap_blip(
 	)
 	finemap_blip_sets = [
 		x.group for x in finemap_blip_sets
-	]
+	]	
+	print(f"Finished running BLiP for {print_id} at {elapsed(time0)}.")
 
 	# Step 7: Compute power and FDR and return
 	output = []
