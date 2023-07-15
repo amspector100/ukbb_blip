@@ -12,8 +12,25 @@ TRAITS = [
 	'biochemistry_LDLdirect'
 ]
 
-REP_URL = "https://static-content.springer.com/esm/art%3A10.1038%2Fnature13835/MediaObjects/41586_2015_BFnature13835_MOESM8_ESM.xls"
-REP_FNAME = "41586_2015_BFnature13835_MOESM8_ESM.xls"
+# urls for data download
+SUSIE_URLS = {
+	"body_HEIGHTz":"https://drive.google.com/file/d/1Gkkp_0ExgSyoS_Ip3irWbnz6HIKXcfEz/view?usp=sharing"
+	"disease_CARDIOVASCULAR":"https://drive.google.com/file/d/1fQYAYZvByvivIM9Y9cBnfX3OJF5i_5Lf/view?usp=sharing",
+	"biochemistry_HDLcholesterol":"https://drive.google.com/file/d/1WZv0r3Q94WD0HHZ2qey1AtnjbSH8dNpJ/view?usp=sharing",
+	"biochemistry_LDLdirect":"https://drive.google.com/file/d/1t55ncZw3gtu6K525wJKuahnxE5xnohJn/view?usp=sharing",
+}
+
+BOLT_URLS = {
+	"body_HEIGHTz":"https://drive.google.com/file/d/1hQNGzAWbrnZxAf6TfyoQ_M0_307-T3jl/view?usp=sharing",
+	"disease_CARDIOVASCULAR":"https://drive.google.com/file/d/1_mjijbhqgmFHKLZiWQ5FVRj36oINsrf2/view?usp=drive_link",
+	"biochemistry_HDLcholesterol":"https://drive.google.com/file/d/1geE4hwXqBlDETg2ylLNlVx4Kuexnq6-_/view?usp=drive_link",
+	"biochemistry_LDLdirect":"https://drive.google.com/file/d/16egXMkSIscvrO1c5tyzaI1dzzOFfp0X2/view?usp=drive_link",
+}
+
+
+# Original URL at which the farh2015 data was hosted
+# REP_URL = "https://static-content.springer.com/esm/art%3A10.1038%2Fnature13835/MediaObjects/41586_2015_BFnature13835_MOESM8_ESM.xls"
+# REP_FNAME = "41586_2015_BFnature13835_MOESM8_ESM.xls"
 
 def create_dir(directory):
 	if not os.path.exists(directory):
@@ -44,7 +61,6 @@ def pull_main_data(download_snps=True, download_susie=True, download_bolt=False)
 	create_dir(bolt_dir)
 	os.chdir(bolt_dir)
 	# for each trait download summary statistics
-	base_url = f"https://storage.googleapis.com/broad-alkesgroup-public/polyfun_results/"
 	if download_bolt:
 		for trait in TRAITS:
 			fname = f"bolt_337K_unrelStringentBrit_MAF0.001_v3.{trait}.bgen.stats.gz"
@@ -52,9 +68,9 @@ def pull_main_data(download_snps=True, download_susie=True, download_bolt=False)
 				print(f"Summary statistics for trait={trait} are already downloaded.")
 			else:
 				print(f"Downloading summary statistics for trait={trait}.")
-				wget.download(base_url + fname)
+				gdown.download(BOLT_URLS[trait], fname, quiet=False)
 
-	# Option 2: download SuSiE outputs
+	# Option 3: download SuSiE outputs
 	alpha_dir = bolt_dir + "alphas/"
 	create_dir(alpha_dir)
 	os.chdir(alpha_dir)
@@ -66,7 +82,7 @@ def pull_main_data(download_snps=True, download_susie=True, download_bolt=False)
 				print(f"SuSiE model for trait={trait} is already downloaded.")
 			else:
 				print(f"Downloading SuSiE model for trait={trait}.")
-				wget.download(base_url + fname)
+				gdown.download(SUSIE_URLS[trait], fname, quiet=False)
 
 	# # Step 3: download data for replication analysis
 	# farh_dir = f"{file_directory}/data/farh2015/"

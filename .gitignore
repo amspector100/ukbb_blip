@@ -3,6 +3,7 @@
 # Don't save data
 data/*
 sims/*
+annotations.ipynb
 
 # Debugging
 sim_debug.ipynb
