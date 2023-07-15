@@ -77,7 +77,7 @@ def download_free_ld_data(chrome=1):
 		else:
 			print(f"Downloading {fname}.")
 			gdrive_id = LD_DRIVE_IDS[chrome][fname]
-			gdown.download(id=snp_gdrive_id, output=fname, quiet=False)
+			gdown.download(id=gdrive_id, output=fname, quiet=False)
 	print("Finished downloading data; now preprocessing.")
 	os.chdir(file_directory)
 
