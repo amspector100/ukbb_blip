@@ -54,7 +54,7 @@ def pull_main_data(download_snps=True, download_susie=True, download_bolt=False)
 			print("The list of SNPs is already downloaded.")
 		else:
 			print("Downloading list of SNPs.")
-			gdown.download(id=snp_gdrive_id, fname, quiet=False)
+			gdown.download(id=snp_gdrive_id, output=fname, quiet=False)
 
 	# Option 2: download bolt_337K data
 	bolt_dir = f"{file_directory}/data/polyfun_results/"
@@ -68,7 +68,7 @@ def pull_main_data(download_snps=True, download_susie=True, download_bolt=False)
 				print(f"Summary statistics for trait={trait} are already downloaded.")
 			else:
 				print(f"Downloading summary statistics for trait={trait}.")
-				gdown.download(id=BOLT_GDRIVE_IDS[trait], fname, quiet=False)
+				gdown.download(id=BOLT_GDRIVE_IDS[trait], output=fname, quiet=False)
 
 	# Option 3: download SuSiE outputs
 	alpha_dir = bolt_dir + "alphas/"
@@ -83,7 +83,7 @@ def pull_main_data(download_snps=True, download_susie=True, download_bolt=False)
 			else:
 				print(f"Downloading SuSiE model for trait={trait}.")
 				print(SUSIE_GDRIVE_IDS[trait])
-				gdown.download(id=SUSIE_GDRIVE_IDS[trait], fname, quiet=False)
+				gdown.download(id=SUSIE_GDRIVE_IDS[trait], output=fname, quiet=False)
 
 	# # Step 3: download data for replication analysis
 	# farh_dir = f"{file_directory}/data/farh2015/"
