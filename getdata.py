@@ -13,18 +13,18 @@ TRAITS = [
 ]
 
 # urls for data download
-SUSIE_URLS = {
-	"body_HEIGHTz":"https://drive.google.com/file/d/1Gkkp_0ExgSyoS_Ip3irWbnz6HIKXcfEz/view?usp=sharing"
-	"disease_CARDIOVASCULAR":"https://drive.google.com/file/d/1fQYAYZvByvivIM9Y9cBnfX3OJF5i_5Lf/view?usp=sharing",
-	"biochemistry_HDLcholesterol":"https://drive.google.com/file/d/1WZv0r3Q94WD0HHZ2qey1AtnjbSH8dNpJ/view?usp=sharing",
-	"biochemistry_LDLdirect":"https://drive.google.com/file/d/1t55ncZw3gtu6K525wJKuahnxE5xnohJn/view?usp=sharing",
+SUSIE_GDRIVE_IDS = {
+	"body_HEIGHTz":"1Gkkp_0ExgSyoS_Ip3irWbnz6HIKXcfEz",
+	"disease_CARDIOVASCULAR":"1fQYAYZvByvivIM9Y9cBnfX3OJF5i_5Lf",
+	"biochemistry_HDLcholesterol":"1WZv0r3Q94WD0HHZ2qey1AtnjbSH8dNpJ",
+	"biochemistry_LDLdirect":"1t55ncZw3gtu6K525wJKuahnxE5xnohJn",
 }
 
-BOLT_URLS = {
-	"body_HEIGHTz":"https://drive.google.com/file/d/1hQNGzAWbrnZxAf6TfyoQ_M0_307-T3jl/view?usp=sharing",
-	"disease_CARDIOVASCULAR":"https://drive.google.com/file/d/1_mjijbhqgmFHKLZiWQ5FVRj36oINsrf2/view?usp=drive_link",
-	"biochemistry_HDLcholesterol":"https://drive.google.com/file/d/1geE4hwXqBlDETg2ylLNlVx4Kuexnq6-_/view?usp=drive_link",
-	"biochemistry_LDLdirect":"https://drive.google.com/file/d/16egXMkSIscvrO1c5tyzaI1dzzOFfp0X2/view?usp=drive_link",
+BOLT_GDRIVE_IDS = {
+	"body_HEIGHTz":"1hQNGzAWbrnZxAf6TfyoQ_M0_307-T3jl",
+	"disease_CARDIOVASCULAR":"1_mjijbhqgmFHKLZiWQ5FVRj36oINsrf2",
+	"biochemistry_HDLcholesterol":"1geE4hwXqBlDETg2ylLNlVx4Kuexnq6-_",
+	"biochemistry_LDLdirect":"16egXMkSIscvrO1c5tyzaI1dzzOFfp0X2",
 }
 
 
@@ -49,12 +49,12 @@ def pull_main_data(download_snps=True, download_susie=True, download_bolt=False)
 	if download_snps:
 		os.chdir(f"{file_directory}/main_cache/")
 		fname = 'snps.json'
-		url = "https://drive.google.com/uc?id=1-qvarB5uzI67IIrToFqdD8f_zD9p4-5l"
+		snp_gdrive_id = "1-qvarB5uzI67IIrToFqdD8f_zD9p4-5l"
 		if os.path.exists(fname):
 			print("The list of SNPs is already downloaded.")
 		else:
 			print("Downloading list of SNPs.")
-			gdown.download(url, fname, quiet=False)
+			gdown.download(id=snp_gdrive_id, fname, quiet=False)
 
 	# Option 2: download bolt_337K data
 	bolt_dir = f"{file_directory}/data/polyfun_results/"
@@ -68,7 +68,7 @@ def pull_main_data(download_snps=True, download_susie=True, download_bolt=False)
 				print(f"Summary statistics for trait={trait} are already downloaded.")
 			else:
 				print(f"Downloading summary statistics for trait={trait}.")
-				gdown.download(BOLT_URLS[trait], fname, quiet=False)
+				gdown.download(id=BOLT_GDRIVE_IDS[trait], fname, quiet=False)
 
 	# Option 3: download SuSiE outputs
 	alpha_dir = bolt_dir + "alphas/"
@@ -82,7 +82,8 @@ def pull_main_data(download_snps=True, download_susie=True, download_bolt=False)
 				print(f"SuSiE model for trait={trait} is already downloaded.")
 			else:
 				print(f"Downloading SuSiE model for trait={trait}.")
-				gdown.download(SUSIE_URLS[trait], fname, quiet=False)
+				print(SUSIE_GDRIVE_IDS[trait])
+				gdown.download(id=SUSIE_GDRIVE_IDS[trait], fname, quiet=False)
 
 	# # Step 3: download data for replication analysis
 	# farh_dir = f"{file_directory}/data/farh2015/"
