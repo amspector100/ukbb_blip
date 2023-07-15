@@ -14,6 +14,7 @@ output/sims/*
 # non-final plots
 output/polyfun_wrapper/plots/*
 output/final/plots/*
+output/old/*
 
 # _____ R Defaults _______
 # History files
