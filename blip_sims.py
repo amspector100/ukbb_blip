@@ -20,6 +20,7 @@ sys.stdout.flush()
 import utilities
 import preprocessing
 from preprocessing import elapsed, shift_until_PSD, min_eigval
+import getdata
 from getdata import create_dir
 file_directory = os.path.dirname(os.path.abspath(__file__))
 
@@ -35,12 +36,15 @@ def load_processed_ld(chrome, start, time0):
 	if os.path.exists(processed_fname):
 		return np.load(processed_fname)
 	else:
-		# Make sure LD data is downloaded
-		preprocessing.download_ld_data(
-			chrome=chrome, start=start
-		)
-		# Load ld
+		print(f"Starting a one-time processing of raw LD for chrome={chrome}, start={start} at {elapsed(time0)}.")
+		# Load ld and process
 		ld_file = f"data/ld/chr{chrome}_{start}_{end}.npz"
+		# if not os.path.exists(ld_file):
+		# 	# Make sure LD data is downloaded
+		# 	preprocessing.download_ld_data(
+		# 		chrome=chrome, start=start
+		# 	)
+		# convert to dense array and force to be PSD
 		ld = scipy.sparse.load_npz(ld_file).toarray().astype(np.float32)
 		ld += ld.T
 		ld = preprocessing.force_PSD_mis(
@@ -272,11 +276,17 @@ def main(args):
 	chrome = args.get("chrome", [10])[0]
 	start = args.get("start", [134000001])[0]
 	end = int(start + 3000000)
-	# Following notation in functionally informed mapping
+	# Following notation in functionally informed mapping paper
 	hg2 = args.get("hg2", [0.05])[0]
 	num_causal = args.get('num_causal', [10])[0]
 
-	# Step 1: load ld
+	# Step 1: load ld (and make sure it is downloaded)
+	if (chrome, start) not in getdata.FREE_LDS:
+		raise ValueError(
+			getdata.data_availability_msg(chrome, start)
+		)
+	else:
+		getdata.download_free_ld_data(chrome=chrome)
 	ld = load_processed_ld(chrome=chrome, start=start, time0=time0)
 	L = np.linalg.cholesky(ld) # takes ~10 seconds
 	print(f'Finished loading LD and performing cholesky decomp at {elapsed(time0)}')

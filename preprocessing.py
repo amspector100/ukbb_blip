@@ -158,24 +158,26 @@ def force_PSD_mis(
     r = output[rev_inds][:, rev_inds]
     return shift_until_PSD(r, tol=tol, init_gamma=0.0025, time0=time0)
 
-def download_ld_data(chrome, start):
+### depreciated due to the new storage location of the data
+#def download_ld_data(chrome, start):
+    #raise ValueError(data_availability_msg(chrome, start))
 
-    # Set directory to data/ld/
-    file_directory = os.path.dirname(os.path.abspath(__file__))
-    os.chdir(f"{file_directory}/data/ld/")
+    # # Set directory to data/ld/
+    # file_directory = os.path.dirname(os.path.abspath(__file__))
+    # os.chdir(f"{file_directory}/data/ld/")
 
-    # find urls and wget
-    end = int(start+3000000)
-    baseurl = f"https://storage.googleapis.com/broad-alkesgroup-public/UKBB_LD/chr{chrome}"
-    for postfix in ['gz', 'npz']:
-        url = f"{baseurl}_{int(start)}_{end}.{postfix}"
-        fname = f"chr{chrome}_{start}_{end}.{postfix}"
-        if not os.path.exists(fname):
-            wget.download(url)
+    # # find urls and wget
+    # end = int(start+3000000)
+    # baseurl = f"https://storage.googleapis.com/broad-alkesgroup-public/UKBB_LD/chr{chrome}"
+    # for postfix in ['gz', 'npz']:
+    #     url = f"{baseurl}_{int(start)}_{end}.{postfix}"
+    #     fname = f"chr{chrome}_{start}_{end}.{postfix}"
+    #     if not os.path.exists(fname):
+    #         wget.download(url)
 
-    # Reset working directory
-    os.chdir(file_directory)
-    return 0
+    # # Reset working directory
+    # os.chdir(file_directory)
+    # return 0
 
 def modified_HESS(
     ld,

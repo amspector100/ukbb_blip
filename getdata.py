@@ -27,6 +27,36 @@ BOLT_GDRIVE_IDS = {
 	"biochemistry_LDLdirect":"16egXMkSIscvrO1c5tyzaI1dzzOFfp0X2",
 }
 
+LD_DRIVE_IDS = {
+	1:{"chr1_237000001_240000001.gz":"1LxLhYZspPFeKDSjXfsfp9_FGL82Dm0rZ",
+		"chr1_237000001_240000001.npz":"1JEA2JkjrhKzakiinnaTBpWeqXz74GdK0"},
+	10:{"chr10_134000001_137000001.gz":"1WBi0gPz0Jy0xd9ldSXia9ITKBAwaYJB4",
+		"chr10_134000001_137000001.npz":"1_MpSco9ejWNF0YzxhpHieLx614kbrSmM"},
+	12:{"chr12_133000001_136000001.gz":"1-4a5P6pUBlSdhrCW0Gz2IRS5eb5albay",
+		"chr12_133000001_136000001.npz":"1XaOqp5bMa3WWzuVHUFepprNNlmbZ_Swt"},
+}
+
+# list of LDs which are now available for free
+FREE_LDS = [
+    (1, 237000001),
+    (10, 134000001),
+    (12, 133000001)
+]
+
+def data_availability_msg(chrome, start):
+    return f"""
+        Unfortunately, new since the posting of our paper, the 
+        raw data now costs money to download due to its enormous size.
+        However, we have made the three raw LD matrices used in our
+        simulations available for free, namely:
+
+        {[f'chromosome={x}, start position={y}' for (x,y) in FREE_LDS]}
+
+        where each tuple above lists the chromosome number and starting position of the loci.
+
+        To download the ld matrix for chrome={chrome}, start={start}, 
+        visit https://registry.opendata.aws/ukbb-ld/.
+    """
 
 # Original URL at which the farh2015 data was hosted
 # REP_URL = "https://static-content.springer.com/esm/art%3A10.1038%2Fnature13835/MediaObjects/41586_2015_BFnature13835_MOESM8_ESM.xls"
@@ -35,6 +65,21 @@ BOLT_GDRIVE_IDS = {
 def create_dir(directory):
 	if not os.path.exists(directory):
 		os.makedirs(directory)
+
+def download_free_ld_data(chrome=1):
+	file_directory = os.path.dirname(os.path.abspath(__file__))
+	raw_ld_dir = f"{file_directory}/data/ld/"
+	create_dir(raw_ld_dir)
+	os.chdir(raw_ld_dir)
+	for fname in LD_DRIVE_IDS[chrome].keys():
+		if os.path.exists(fname):
+			print(f"{fname} is already downloaded.")
+		else:
+			print(f"Downloading {fname}.")
+			gdrive_id = LD_DRIVE_IDS[chrome][fname]
+			gdown.download(id=snp_gdrive_id, output=fname, quiet=False)
+	print("Finished downloading data; now preprocessing.")
+	os.chdir(file_directory)
 
 def pull_main_data(download_snps=True, download_susie=True, download_bolt=False):
 	"""
